@@ -1,5 +1,7 @@
 package core;
 
+import org.json.JSONPropertyIgnore;
+
 import java.time.LocalDateTime;
 
 public class Container {
@@ -11,6 +13,7 @@ public class Container {
   protected Container pare;
 
 //constructor
+  public Container(){}
   public Container(String nom, String desc, Container pare ) {
     this.nom=nom;
     this.descripcio=desc;
@@ -21,44 +24,46 @@ public class Container {
 
   //----------set & get-----------
   public void setNom(String nom) {
-    nom = nom;
+    this.nom = nom;
   }
   public String getNom() {
     return nom;
   }
 
   public void setDescripcio(String descripcio) {
-    descripcio = descripcio;
+    this.descripcio = descripcio;
   }
   public String getDescripcio() {
     return descripcio;
   }
 
   public void setDurada(Long durada) {
-    durada = durada;
+    this.durada = durada;
   }
   public Long getDurada() {
     return durada;
   }
 
   public void setTempsInici(LocalDateTime tempsInici) {
-    tempsInici = tempsInici;
+    this.dataInici = tempsInici;
   }
   public LocalDateTime getTempsInici() {
     return dataInici;
   }
 
   public void setTempsFinal(LocalDateTime tempsFinal) {
-    tempsFinal = tempsFinal;
+    this.dataFinal = tempsFinal;
   }
   public LocalDateTime getTempsFinal() {
     return dataFinal;
   }
-
   public void setPare(Container pare) {
     this.pare = pare;
   }
+
+  @JSONPropertyIgnore
   public Container getPare() {
+    System.out.println("hey");
     return pare;
   }
 

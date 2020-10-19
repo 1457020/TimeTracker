@@ -8,6 +8,7 @@ public class Task extends Container{
   protected List<Interval> llistaIntervals=new ArrayList<Interval>();
 
 //constructor
+  public Task(){}
   public Task(String nom, String desc, Container pare) {
     // Auto-generated constructor
     super(nom, desc, pare);
@@ -22,6 +23,14 @@ public class Task extends Container{
   public void inserirFill(Interval fill){
     llistaIntervals.add(fill);
     fill.setId(llistaIntervals.size());
+  }
+
+  public List<Interval> getLlistaIntervals() {
+    return llistaIntervals;
+  }
+
+  public void setLlistaIntervals(List<Interval> llistaIntervals) {
+    this.llistaIntervals = llistaIntervals;
   }
 
 

@@ -12,6 +12,8 @@ public class Interval implements Observer {
   private Task pare;
 
   //constructor
+  public Interval(){}
+
   public Interval(Task xpare) {
     dataInici= LocalDateTime.now();
     dataFinal = null;
@@ -34,5 +36,37 @@ public class Interval implements Observer {
     System.out.println("ID:"+id+"            dateInici:"+dataInici+"                dateFinal:"+ dataFinal+"                  operation"+dataFinal.getNano()+"               durada: "+ durada);
 
 
+  }
+
+  public LocalDateTime getDataInici() {
+    return dataInici;
+  }
+
+  public void setDataInici(LocalDateTime dataInici) {
+    this.dataInici = dataInici;
+  }
+
+  public LocalDateTime getDataFinal() {
+    return dataFinal;
+  }
+
+  public void setDataFinal(LocalDateTime dataFinal) {
+    this.dataFinal = dataFinal;
+  }
+
+  public int getDurada() {
+    return durada;
+  }
+
+  public void setDurada(int durada) {
+    this.durada = durada;
+  }
+
+  public Task getPare() {
+    return pare;
+  }
+
+  public void setPare(Task pare) {
+    this.pare = pare;
   }
 }
