@@ -7,7 +7,7 @@ import java.util.Observer;
 public class Interval implements Observer {
   private LocalDateTime dataInici;
   private LocalDateTime dataFinal;
-  private int durada= -2; /**S'inicialitza a -2 ja que la primera crida es fa quan el rellotge esta a 0**/
+  private int durada= 0; /**S'inicialitza a -2 ja que la primera crida es fa quan el rellotge esta a 0**/
   private int id;
   private Task pare;
 
