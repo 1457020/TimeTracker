@@ -73,13 +73,21 @@ public class DataManager {
         String desc = rootJsonObject.getString("descripcio");
         int durada = 0;
         String dataFinal = "";
+        String dataInici = "";
         if (rootJsonObject.isNull("durada")){
             durada = 0;
         } else {
             durada = rootJsonObject.getInt("durada");
             container.setDurada((long) durada);
         }
-        String dataInici = rootJsonObject.getString("dataInici");
+
+
+        if (rootJsonObject.isNull("dataInici")){
+            dataInici = null;
+        } else {
+            dataInici = rootJsonObject.getString("dataInici");
+            container.setTempsFinal(LocalDateTime.parse(dataInici));
+        }
 
         if (rootJsonObject.isNull("dataFinal")){
             dataFinal = null;
@@ -90,7 +98,6 @@ public class DataManager {
 
         container.setNom(nom);
         container.setDescripcio(desc);
-        container.setTempsInici(LocalDateTime.parse(dataInici));
         container.setPare(containerPare);
 
         if (container instanceof Project){
