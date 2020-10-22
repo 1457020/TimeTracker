@@ -8,7 +8,11 @@ public class Main {
     private static void simpleTest(int period, Clock clock) throws InterruptedException {
         //creo el root del projecte per poder crear tasks(1) o intervals(2)
         Project root = new Project("root","root",null);
+        DataManager dm = DataManager.getInstance();
 
+        dm.importJSONDataToContainer("exportedTimeTrackerData.json");
+
+        //dm.exportData(root);
         //Prints & sc
         Scanner sc= new Scanner(System.in);
         System.out.println("What do you want to do ?");
@@ -22,6 +26,8 @@ public class Main {
 
             //Creo la task i interval
             Task T1 = new Task("T1","Child of root",root);
+            //dm.exportData(T1);
+
             Interval int1 = new Interval(T1);
 
             //Insercio
@@ -38,6 +44,7 @@ public class Main {
             System.out.println(root.nom+",durada:"+ root.getDurada());
         }
 
+        dm.exportDataContainerToJSON(root);
 
 
     }
