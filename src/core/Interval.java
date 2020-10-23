@@ -4,69 +4,94 @@ import java.time.LocalDateTime;
 import java.util.Observable;
 import java.util.Observer;
 
+
 public class Interval implements Observer {
-  private LocalDateTime dataInici;
-  private LocalDateTime dataFinal;
-  private int durada= 0; /**S'inicialitza a -2 ja que la primera crida es fa quan el rellotge esta a 0**/
-  private int id;
-  private Task pare;
+    private LocalDateTime initialDate;
+    private LocalDateTime finalDate;
+    private Long duration;
+    private int id;
+    private Task fatherTask;
+    private Long period;
 
-  //constructor
-  public Interval(){}
+    public Long getPeriod() {
+        return period;
+    }
 
-  public Interval(Task xpare) {
-    dataInici= LocalDateTime.now();
-    dataFinal = null;
-    pare=xpare;
-    pare.actualitzaDataInici(dataInici);
-  }
+    public void setPeriod(Long period) {
+        this.period = period;
+    }
 
-  //-----------set & get------------
-  public void setId(int num){ this.id=num; }
-  public int getId(){return this.id;}
+    public Long getDuration() {
+        return duration;
+    }
 
-  //------X----set & get------X-----
+    public void setDuration(Long duration) {
+        this.duration = duration;
+    }
+
+    public Interval() {
+    }
+
+    public Interval(Task fatherTask, LocalDateTime initialDate, Long period) {
+        this.initialDate = initialDate;
+        this.finalDate = null;
+        this.fatherTask = fatherTask;
+        this.fatherTask.updateInitialDate(initialDate);
+        this.duration = 0L;
+        this.period = period;
+    }
+
+    public void setId(int num) {
+        this.id = num;
+    }
+
+    public int getId() {
+        return this.id;
+    }
+
+    /**
+     * Observer update functionality which receives a signal to update the duration and dates from the task and
+     * fathers.
+     *
+     * @param o
+     * @param arg the final date.
+     */
+    public void update(Observable o, Object arg) {
+        this.finalDate = (LocalDateTime) arg;
+        this.duration += this.period;
+
+        System.out.println("ID:" + id + "            dateInici:" + initialDate + "                dateFinal:" + finalDate + "                                 durada: " + duration);
+
+        this.fatherTask.updateFinalDate(this.finalDate);
+
+        this.fatherTask.updateDuration(period);
 
 
+    }
 
-  public void update(Observable o, Object arg) {
-    this.dataFinal = (LocalDateTime) arg;
-    this.durada+=2;
+    public LocalDateTime getInitialDate() {
+        return initialDate;
+    }
 
-    System.out.println("ID:"+id+"            dateInici:"+dataInici+"                dateFinal:"+ dataFinal+"                  operation"+dataFinal.getNano()+"               durada: "+ durada);
+    public void setInitialDate(LocalDateTime initialDate) {
+        this.initialDate = initialDate;
+    }
+
+    public LocalDateTime getFinalDate() {
+        return finalDate;
+    }
+
+    public void setFinalDate(LocalDateTime finalDate) {
+        this.finalDate = finalDate;
+    }
 
 
-  }
+    public Task getFatherTask() {
+        return fatherTask;
+    }
 
-  public LocalDateTime getDataInici() {
-    return dataInici;
-  }
+    public void setFatherTask(Task fatherTask) {
+        this.fatherTask = fatherTask;
+    }
 
-  public void setDataInici(LocalDateTime dataInici) {
-    this.dataInici = dataInici;
-  }
-
-  public LocalDateTime getDataFinal() {
-    return dataFinal;
-  }
-
-  public void setDataFinal(LocalDateTime dataFinal) {
-    this.dataFinal = dataFinal;
-  }
-
-  public int getDurada() {
-    return durada;
-  }
-
-  public void setDurada(int durada) {
-    this.durada = durada;
-  }
-
-  public Task getPare() {
-    return pare;
-  }
-
-  public void setPare(Task pare) {
-    this.pare = pare;
-  }
 }

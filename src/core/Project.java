@@ -5,39 +5,26 @@ import java.util.List;
 
 public class Project extends Container{
 
-  private List<Container> llistaFills= new ArrayList<Container>();
+  private List<Container> containerChildren = new ArrayList<Container>();
 
 //constructor
   public Project(){}
-  public Project(String nom, String desc, Container pare) {
+  public Project(String name, String desc, Container containerFather) {
     // Auto-generated constructor
-    super(nom, desc, pare);
+    super(name, desc, containerFather);
   }
 
-  //-----------set & get------------
-
-  public Container getFill(){
-    if(!llistaFills.isEmpty()) {
-      return llistaFills.get(0);
-    }
-    return null;
+  public void addChild(Container child){
+    containerChildren.add(child);
+    child.containerFather = this;
   }
 
-  //------X----set & get------X-----
-
-
-
-
-  public void inserirFill(Container fill){
-    llistaFills.add(fill);
-    fill.pare=this;
+  public List<Container> getContainerChildren() {
+    return containerChildren;
   }
 
-  public List<Container> getLlistaFills() {
-    return llistaFills;
+  public void setContainerChildren(List<Container> containerChildren) {
+    this.containerChildren = containerChildren;
   }
 
-  public void setLlistaFills(List<Container> llistaFills) {
-    this.llistaFills = llistaFills;
-  }
 }

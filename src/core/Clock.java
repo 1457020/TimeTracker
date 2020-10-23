@@ -6,41 +6,60 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class Clock extends Observable implements Runnable {
-  private static LocalDateTime date;
-  private static Timer timer;
-  private static int period; //seconds
+    private static LocalDateTime date;
+    private static Timer timer;
+    private static Long period;
 
-//constructor
-  public Clock(int period){
-    date = LocalDateTime.now();
-    this.period = period;
-    timer = new Timer();
-  }
-
-//crea una timertask que es repetira en el temps "schedule". la task es un print de now().
-@Override
-public void run() {
-  TimerTask repeatedTask = new TimerTask() {
-
-    @Override
-    public void run() { //instance of anonymous class
-      date = LocalDateTime.now();
-      //System.out.println("Run() done on " + date);
-
-      //marca que el valor ha cambiat
-      setChanged();
-      //exectuta la notificacio
-      notifyObservers(date);
+    public Clock(Long period) {
+        this.date = LocalDateTime.now();
+        this.period = period;
+        this.timer = new Timer();
     }
-  };
-  timer.scheduleAtFixedRate(repeatedTask,0,1000*period);
 
-}
+    /**
+     * Create a timertask instance which will repeat the code inside every x seconds and notify observers.
+     */
+    @Override
+    public void run() {
+        TimerTask repeatedTask = new TimerTask() {
+            @Override
+            public void run() {
+                date = LocalDateTime.now();
 
-  public void stop(){timer.cancel();}
-  public int getPeriod(){return period;}
-  public LocalDateTime getDate(){return date;}
+                setChanged();
+                notifyObservers(date);
+            }
+        };
+        timer.scheduleAtFixedRate(repeatedTask, 0, 1000 * period);
+    }
 
+    public static void setDate(LocalDateTime date) {
+        Clock.date = date;
+    }
+
+    public static Timer getTimer() {
+        return timer;
+    }
+
+    public static void setTimer(Timer timer) {
+        Clock.timer = timer;
+    }
+
+    public static void setPeriod(Long period) {
+        Clock.period = period;
+    }
+
+    public void stop() {
+        timer.cancel();
+    }
+
+    public Long getPeriod() {
+        return period;
+    }
+
+    public LocalDateTime getDate() {
+        return date;
+    }
 
 
 }

@@ -5,34 +5,47 @@ import java.util.List;
 
 public class Task extends Container{
 
-  protected List<Interval> llistaIntervals=new ArrayList<Interval>();
+  protected List<Interval> intervalList = new ArrayList<Interval>();
 
-//constructor
   public Task(){}
-  public Task(String nom, String desc, Container pare) {
-    // Auto-generated constructor
-    super(nom, desc, pare);
+  public Task(String name, String desc, Container containerFather) {
+    super(name, desc, containerFather);
   }
 
-  //-----------set & get------------
-
-  //------X----set & get------X-----
-
-
-
-  public void inserirFill(Interval fill){
-    llistaIntervals.add(fill);
-    fill.setId(llistaIntervals.size());
+  public void addChild(Interval child){
+    intervalList.add(child);
+    child.setId(intervalList.size());
   }
 
-  public List<Interval> getLlistaIntervals() {
-    return llistaIntervals;
+  public List<Interval> getIntervalList() {
+    return intervalList;
   }
 
-  public void setLlistaIntervals(List<Interval> llistaIntervals) {
-    this.llistaIntervals = llistaIntervals;
+  public void setIntervalList(List<Interval> intervalList) {
+    this.intervalList = intervalList;
   }
 
+  public void startInterval(Clock clock, boolean forceNotifyObserver){
+    Interval interval = null;
+    // The first task must already start with duration 2. So needs to be handled.
+    if (forceNotifyObserver) {
+      interval = new Interval(this, clock.getDate().minusSeconds(clock.getPeriod()), clock.getPeriod());
+      addChild(interval);
+      interval.update(null, clock.getDate());
+    } else {
+      interval = new Interval(this, clock.getDate(), clock.getPeriod());
+      addChild(interval);
+
+    }
+    clock.addObserver(interval);
+  }
+
+  public void pararInterval(Clock clock){
+    // Obtain the last interval added into the list.
+    Interval interval = intervalList.get(intervalList.size()-1);
+    clock.deleteObserver(interval);
+    interval.setFinalDate(clock.getDate());
+  }
 
   }
 
