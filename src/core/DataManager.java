@@ -12,22 +12,33 @@ import java.util.List;
 public class DataManager {
     private static DataManager instance = null;
 
-    private DataManager(){}
+    private DataManager() {
+    }
 
-    public static DataManager getInstance()
-    {
+    /**
+     * Singleton for DataManager, as an external functionality it would be called whenever is needed inside
+     * the project. So it's important we are just using a single instance all the time.
+     * @return
+     */
+    public static DataManager getInstance() {
         if (instance == null)
             instance = new DataManager();
 
         return instance;
     }
 
-    public void exportDataContainerToJSON(Container container){
+    /**
+     * Receives a container(root project) and generates the JSON Object which will be used to save it in a json file.
+     * Uses recursion to build the json object across all children of root project.
+     * @param container
+     */
+    public void exportDataContainerToJSON(Container container) {
+        // Builds the json object recursively.
         JSONObject jsonObject = generateJSONObjectFromContainer(container);
         LocalDateTime now = LocalDateTime.now();
-        System.out.println(jsonObject);
         File file = new File("exportedTimeTrackerData.json");
         FileWriter fileWriter = null;
+        // Write it to a file.
         try {
             // Constructs a FileWriter given a file name, using the platform's default charset
             fileWriter = new FileWriter(file);
@@ -47,18 +58,25 @@ public class DataManager {
         }
     }
 
-    public Container importJSONDataToContainer(String fileLocation){
-        Project root = null;
+    /**
+     * Import a json file into a Container object. It uses recursion to extract all the projects and tasks from the
+     * json file.
+     * @param fileLocation
+     * @return
+     */
+    public Container importJSONDataToContainer(String fileLocation) {
+        Container root = null;
         try {
 
             FileReader reader = new FileReader(fileLocation);
             JSONTokener tokener = new JSONTokener(reader);
 
             JSONObject object = new JSONObject(tokener);
-            //root = new Project(object.getString("nom"), object.getString("descripcio"), null);
 
-            Container c = parseRootProjectData(new Project(), object, null);
-            System.out.println("Parsed json to object");
+            // Build to json object recursively.
+            root = parseRootProjectData(new Project(), object, null);
+            System.out.println("JSON Objects from imported json: ");
+            System.out.println(object);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -67,66 +85,73 @@ public class DataManager {
 
     }
 
-    private Container parseRootProjectData(Container container, JSONObject rootJsonObject, Container containerPare){
+    /**
+     * Auxiliary function to iterate over the read json file to generate the json object.
+     * @param container
+     * @param rootJsonObject
+     * @param containerFather
+     * @return
+     */
+    private Container parseRootProjectData(Container container, JSONObject rootJsonObject, Container containerFather) {
 
-        String nom = rootJsonObject.getString("nom");
+        String name = rootJsonObject.getString("nom");
         String desc = rootJsonObject.getString("descripcio");
-        int durada = 0;
-        String dataFinal = "";
-        String dataInici = "";
-        if (rootJsonObject.isNull("durada")){
-            durada = 0;
+        int duration = 0;
+        String initialDate = "";
+        String finalDate = "";
+
+        // Make sure to handle null pointers correctly.
+        if (rootJsonObject.isNull("durada")) {
+            duration = 0;
         } else {
-            durada = rootJsonObject.getInt("durada");
-            container.setDurada((long) durada);
+            duration = rootJsonObject.getInt("durada");
+            container.setDuration((long) duration);
         }
 
-
-        if (rootJsonObject.isNull("dataInici")){
-            dataInici = null;
+        if (rootJsonObject.isNull("dataInici")) {
+            finalDate = null;
         } else {
-            dataInici = rootJsonObject.getString("dataInici");
-            container.setTempsFinal(LocalDateTime.parse(dataInici));
+            finalDate = rootJsonObject.getString("dataInici");
+            container.setFinalDate(LocalDateTime.parse(finalDate));
         }
 
-        if (rootJsonObject.isNull("dataFinal")){
-            dataFinal = null;
+        if (rootJsonObject.isNull("dataFinal")) {
+            initialDate = null;
         } else {
-            dataFinal = rootJsonObject.getString("dataFinal");
-            container.setTempsFinal(LocalDateTime.parse(dataFinal));
+            initialDate = rootJsonObject.getString("dataFinal");
+            container.setFinalDate(LocalDateTime.parse(initialDate));
         }
 
-        container.setNom(nom);
-        container.setDescripcio(desc);
-        container.setPare(containerPare);
+        container.setName(name);
+        container.setDescription(desc);
+        container.setContainerFather(containerFather);
 
-        if (container instanceof Project){
+        if (container instanceof Project) {
 
             JSONArray jsonArray = rootJsonObject.getJSONArray("fills");
-            List<Container> llistaFills= new ArrayList<>();
-            for (int i = 0; i < jsonArray.length(); i++){
+            List<Container> containerChildren = new ArrayList<>();
+            for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject ob = jsonArray.getJSONObject(i);
-                if (ob.has("fills")){
+                if (ob.has("fills")) {
 
                     Project p = (Project) parseRootProjectData(new Project(), ob, container);
-                    llistaFills.add(p);
+                    containerChildren.add(p);
                 } else {
                     Task t = (Task) parseRootProjectData(new Task(), ob, container);
-                    llistaFills.add(t);
+                    containerChildren.add(t);
                 }
 
 
             }
 
-            ((Project) container).setLlistaFills(llistaFills);
-
+            ((Project) container).setContainerChildren(containerChildren);
 
 
         } else {
             JSONArray jsonArray = rootJsonObject.getJSONArray("intervals");
-            List<Interval> llistaIntervals= new ArrayList<>();
+            List<Interval> intervalsList = new ArrayList<>();
 
-            for (int i = 0; i < jsonArray.length(); i++){
+            for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject ob = jsonArray.getJSONObject(i);
                 int id = ob.getInt("id");
                 int durada1 = ob.getInt("durada");
@@ -134,61 +159,64 @@ public class DataManager {
                 String dataFinal1 = ob.getString("dataFinal");
 
                 Interval interval = new Interval();
-                interval.setPare((Task) container);
+                interval.setFatherTask((Task) container);
                 interval.setId(id);
-                interval.setDurada(durada1);
-                interval.setDataInici(LocalDateTime.parse(dataInici1));
-                interval.setDataFinal(LocalDateTime.parse(dataFinal1));
+                interval.setDuration((long) durada1);
+                interval.setInitialDate(LocalDateTime.parse(dataInici1));
+                interval.setFinalDate(LocalDateTime.parse(dataFinal1));
 
-                llistaIntervals.add(interval);
+                intervalsList.add(interval);
             }
 
-            ((Task) container).setLlistaIntervals(llistaIntervals);
+            ((Task) container).setIntervalList(intervalsList);
         }
 
         return container;
     }
 
-    private JSONObject generateJSONObjectFromContainer(Container container){
+    /**
+     * Auxiliary function to generate json file from container in a recursive manner.
+     * @param container
+     * @return
+     */
+    private JSONObject generateJSONObjectFromContainer(Container container) {
 
         JSONObject jsonObject = new JSONObject();
 
-        jsonObject.put("nom", container.getNom());
-        jsonObject.put("descripcio", container.getDescripcio() != null ? container.getDescripcio() : JSONObject.NULL);
-        jsonObject.put("durada", container.getDurada() != null ? container.getDurada() : JSONObject.NULL);
-        jsonObject.put("dataInici", container.getTempsInici() != null ? container.getTempsInici() : JSONObject.NULL);
-        jsonObject.put("dataFinal", container.getTempsFinal() != null ? container.getTempsFinal() : JSONObject.NULL);
+        jsonObject.put("nom", container.getName());
+        jsonObject.put("descripcio", container.getDescription() != null ? container.getDescription() : JSONObject.NULL);
+        jsonObject.put("durada", container.getDuration() != null ? container.getDuration() : JSONObject.NULL);
+        jsonObject.put("dataInici", container.getInitialDate() != null ? container.getInitialDate() : JSONObject.NULL);
+        jsonObject.put("dataFinal", container.getFinalDate() != null ? container.getFinalDate() : JSONObject.NULL);
 
-        if (container instanceof Project){
-            List<Container> llistaFills= ((Project) container).getLlistaFills();
+        if (container instanceof Project) {
+            List<Container> containerChildren = ((Project) container).getContainerChildren();
             JSONArray jsonArray = new JSONArray();
 
-            for (Container containerFill : llistaFills){
-                JSONObject fillData = generateJSONObjectFromContainer(containerFill);
-                jsonArray.put(fillData);
+            for (Container containerChild : containerChildren) {
+                JSONObject childData = generateJSONObjectFromContainer(containerChild);
+                jsonArray.put(childData);
             }
 
             jsonObject.put("fills", jsonArray);
 
 
         } else {
-            List<Interval> llistaIntervals= ((Task)container).getLlistaIntervals();
+            List<Interval> intervalList = ((Task) container).getIntervalList();
             JSONArray jsonArray = new JSONArray();
 
-            for (Interval interval : llistaIntervals){
+            for (Interval interval : intervalList) {
                 JSONObject intervalObject = new JSONObject();
                 intervalObject.put("id", interval.getId());
-                intervalObject.put("durada", interval.getDurada());
-                intervalObject.put("dataInici", interval.getDataInici() != null ? interval.getDataInici() : JSONObject.NULL);
-                intervalObject.put("dataFinal", interval.getDataFinal() != null ? interval.getDataFinal() : JSONObject.NULL);
+                intervalObject.put("durada", interval.getDuration());
+                intervalObject.put("dataInici", interval.getInitialDate() != null ? interval.getInitialDate() : JSONObject.NULL);
+                intervalObject.put("dataFinal", interval.getFinalDate() != null ? interval.getFinalDate() : JSONObject.NULL);
                 jsonArray.put(intervalObject);
             }
 
             jsonObject.put("intervals", jsonArray);
         }
 
-        /*else {*/
         return jsonObject;
-        //}
     }
 }
